@@ -1,51 +1,50 @@
 
-# Predicting Secondary Structure Using Long Short-Term Memory
+# Прогнозирование вторичной структуры с использованием длительной кратковременной памяти
 
-The purpose of this repo is to implement the model presented [here](https://arxiv.org/pdf/1412.7828.pdf) in order to reproduce the results claimed in that paper.
-### Abstract
-> Prediction of protein secondary structure from the amino acid sequence is a classical bioinformatics problem. Common methods use feed forward neural networks or SVM’s combined with a sliding window, as these models
-does not naturally handle sequential data. Recurrent neural networks are an generalization of the feed forward
-neural network that naturally handle sequential data. We use a bidirectional recurrent neural network with long
-short term memory cells for prediction of secondary structure and evaluate using the CB513 dataset. On the
-secondary structure 8-class problem we report better performance (0.674) than state of the art (0.664). Our model
-includes feed forward networks between the long short term memory cells, a path that can be further explored.
+Цель этого репозитория - реализовать представленную модель [here](https://arxiv.org/pdf/1412.7828.pdf) чтобы воспроизвести результаты, заявленные в этом документе.
+### Описание
+> Предсказание вторичной структуры белка по аминокислотной последовательности является классической проблемой биоинформатики. Обычные методы используют нейронные сети прямой связи или SVM в сочетании со скользящим окном, 
+но эти модели естественно не обрабатывают последовательные(недискретные) данные. Рекуррентные нейронные сети являются примером использования обратной связи
+в нейронных сетях, которые естественно обрабатывают последовательные данные. Мы используем двунаправленную рекуррентную нейронную сеть с длинной
+ячейкой краткосрочной памяти для прогнозирования вторичной структуры и оценки с использованием набора данных CB513. Наша модель
+включает в себя сети прямой связи между ячейками долгосрочной кратковременной памяти.
 
-# Overview
+# Обзор
 
-- **model.py**: Bidirectional LSTM RNN class
-- **dataset.py**: Data input pipeline
-- **hparams.py**: Specify hyperparameters for the model
-- **metrics.py**: Custom streaming confusion matrix 
-- **train.py**: Train a model
-- **evaluate.py**: Evaluate a model
-- **__main__.py**: Driver/command line tool
+- **model.py**: Двунаправленный класс LSTM RNN
+- **dataset.py**: Конвейер ввода данных
+- **hparams.py**: Указание гиперпараметров для модели
+- **metrics.py**: Пользовательская confusion matrix потоков
+- **train.py**: Тренировка модели
+- **evaluate.py**: Оценивание модели
+- **__main__.py**: Драйвер / инструмент командной строки
 
 # User Guide
-*Note: all bash commands are assumed to be executed from this module's parent directory*
+*Примечание. Предполагается, что все команды bash выполняются из родительского каталога этого модуля.*
 
-## Requirements
+## Требования
 
 - Python 3
 - [TensorFlow](https://www.tensorflow.org/install/) >= v1.7
 
 
-## Downloading and Preparing the Data
+## Загрузка и подготовка данных
 
-The dataset used in this paper can be downloaded [here](https://www.princeton.edu/~jzthree/datasets/ICML2014/). The input pipeline uses the TensorFlow Dataset API, so the data files need to be converted into TFRecords. Assuming you've downloaded the .npy.gz files to the directory *datadir*, you can create the .tfrecords files by invoking:
+Набор данных, используемый в этой статье, можно загрузить [here](https://www.princeton.edu/~jzthree/datasets/ICML2014/). Входной поток использует API набора данных TensorFlow, поэтому файлы данных необходимо преобразовать в TFRecords. Предполагается, что вы загрузили файлы .npy.gz в каталог * datadir *, вы можете создать файлы .tfrecords, вызвав:
 ```
 ./make_tfrecords -d datadir
 ```
-This will create the training, validation, and test datasets. See [make_tfrecords.py](./make_tfrecords.py) for more details and [MakeTFRecords.ipynb](./MakeTFRecords.ipynb) for a walkthrough on what the script does.
+Это создаст наборы данных обучения, проверки и тестирования. Видеть [make_tfrecords.py](./make_tfrecords.py) для большей информации [MakeTFRecords.ipynb](./MakeTFRecords.ipynb) для пошагового ознакомления с тем, что делает скрипт.
 
-**NOTE**: The numpy data and tfrecords data will use about 4GB of space combined.
+**ВНИМАНИЕ**: Данные numpy и tfrecords будут использовать около 4 ГБ пространства.
 
-## Training a Model
+## Обучение модели
 
-Assuming the TF records datasets have been created, the quickest way to train a model is by invoking
+Предполагая, что наборы данных записей TF были созданы, самый быстрый способ обучить модель - это вызвать
 ```
 python -m pssp_lstm train /path/to/data/dir /path/to/log/dir
 ```
-This will train the model as described on the CullPDB dataset. This will train on batches of 64 until the validation error hasn't increased for 5 validation steps. During training, you should see regular status messages: 
+Это обучит модель, как описано в наборе данных CullPDB. Обучение будет производиться партиями по 64 элемента, пока проверка ошибки не увеличится на 5 шагов проверки. Во время обучения вы должны видеть регулярные сообщения о состоянии: 
 ```
 ...
 Step: 630, Training Loss: 245.6874, Avg Sec/Step: 1.29
@@ -54,35 +53,35 @@ Step: 650, Eval Loss: 132.1941, Eval Accuracy: 0.5192
 ...
 ```
 
-Depending on your hardware, you may want to use different batch sizes. The model and training hyperparameters can be adjusted in the [hparams.py](./pssp_lstm/hparams.py) file.
+В зависимости от вашего оборудования вы можете использовать пакеты разных размеров. Модель и тренировочные гиперпараметры можно настроить в [hparams.py](./pssp_lstm/hparams.py) .
 
-## Visualizing Training
+## Визуализация результатов обучения
 
-If the `--logging` flag is passed during training, then summaries will be saved for a number of training statistics, including training loss, validation loss, accuracy, confusion matrices, weight histograms and distributions, etc.
+Если флаг `--logging` пропускается во время обучения, после чего сводные данные сохраняются для ряда статистических данных о тренировке, включая  потерю точности, ухудшение показателей в confusion matrix, гистограммах веса и т. д.
 
-These can be visualized using [Tensorboard](https://github.com/tensorflow/tensorboard). If the logs are saved to `logdir`, you can start the tensorboard server by calling
+Эти данные можно отобразить [Tensorboard](https://github.com/tensorflow/tensorboard). Если логи сохранены в  `logdir`, вы можете вызвать tensorboard server вызвав
 ```
 tensorboard --logdir logdir
 ```
-By default, this will start a web server on the local host. 
+По умолчанию данная команда запускает веб-сервер на локальном хосте.
 
-## Evaluating the Model
+## Оценивание модели
 
-Once a model is trained, you can evaluate it vs. the CullPDB 513 test set with the following call:
+После того, как модель обучена, вы можете сравнить ее с набором тестов CullPDB 513 с помощью следующего вызова:
 ```
 python -m pssp_lstm evaluate /path/to/data/dir /path/to/ckpts/ckpt
 ```
-Here, the second argument is not a directory, but instead the path to a model checkpoint previously saved during training. These will be under `logdir/ckpt/`, where `logdir` was the directory specified at training, and have names of the form `ckpt-3000*`. There will be multiple files that begin this way per checkpoint, and only the prefix is necessary. One example of evaluating a model might look like
+Здесь вторым аргументом является не каталог, а путь к контрольной точке модели, ранее сохраненной во время обучения. Это будет  `logdir/ckpt/`, где `logdir` был каталог, указанный при обучении, и имеет имена вида `ckpt-3000*`. Будет несколько файлов, которые начинаются таким образом для каждой контрольной точки, и необходим только префикс. Один из примеров оценки модели может выглядеть так
 ```
 python -m pssp_lstm evaluate /home/user/data/ /home/user/models/ckpt/ckpt-3000
 ```
 
-# Resources
+# Ресурсы
 
 
-- The dataset uses proteins from the [Protein Databank](https://www.wwpdb.org/)
-- Secondary structure labels are assigned according to the Dictionary of Protein Secondary Structure [(DSSP)](http://swift.cmbi.ru.nl/gv/dssp/) labels
+- Набор данных использует данные о белках из [Protein Databank](https://www.wwpdb.org/)
+- Метки вторичной структуры назначаются в соответствии со словарем меток вторичной структуры белка [(DSSP)](http://swift.cmbi.ru.nl/gv/dssp/) 
 
-# Additional References
+# Доп. ссылки
 
 1. Sixty-five years of the long march in protein secondary structure prediction: the final stretch? Yang, Y., *et al.* [Link](https://academic.oup.com/bib/advance-article/doi/10.1093/bib/bbw129/2769436)
