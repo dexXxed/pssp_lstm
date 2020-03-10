@@ -1,7 +1,7 @@
-#!/usr/bin/env python3
-import os, sys
+import os
 import argparse as ap
-import numpy as np, tensorflow as tf
+import numpy as np
+import tensorflow as tf
 
 
 def _int64_feature(value):
@@ -12,7 +12,7 @@ def _floats_feature(value):
     return tf.train.Feature(float_list=tf.train.FloatList(value=value))
 
 
-# Count the protein sequence lengths for all samples
+# Подсчитываем длину последовательности белка для всех образцов
 def get_length(seq_labels):
     assert seq_labels.shape == (700, 9)
     noseq = np.array([[0., 0., 0., 0., 0., 0., 0., 0., 1.]])
@@ -21,10 +21,10 @@ def get_length(seq_labels):
 
 def cpdb_to_tfrecord(datadir: str):
     """
-    Convert the numpy array format for cpdb files to TFRecord format
-    Save training and validation set with 256 samples
+    Преобразуем формат массива для файлов cpdb в формат TFRecord.
+    Сохраняем набор обучения и проверки с 256 образцами
     Args:
-        datadir: the directory where the data is located. Saves the tfrecords here.
+        datadir: каталог, в котором находятся данные. Сохраняем TFRecord-ы здесь.
     """
 
     datadir = os.path.abspath(datadir)
@@ -42,19 +42,19 @@ def cpdb_to_tfrecord(datadir: str):
 
     seq_lengths = [get_length(labels[l, :, :]) for l in range(num_samples)]
 
-    # Flatten labels
+    # Сводим лэйблы
     labels = labels.reshape(num_samples, -1)
 
-    # Get the indices for training, validation set
+    # Получаем индексы для обучения, набор данных для валидации
     train_examples = range(0, num_samples-256)
     valid_examples = range(num_samples-256, num_samples)
-    print("train range: ", train_examples)
-    print("valid range: ", valid_examples)
+    print("train диапазон: ", train_examples)
+    print("valid диапазон: ", valid_examples)
 
     train_file = os.path.join(datadir, "cpdb_train.tfrecords")
     valid_file = os.path.join(datadir, "cpdb_valid.tfrecords")
 
-    print("Writing ", train_file)
+    print("Записываем ", train_file)
     train_writer = tf.python_io.TFRecordWriter(train_file)
 
     for index in train_examples:
@@ -65,7 +65,7 @@ def cpdb_to_tfrecord(datadir: str):
         train_writer.write(example.SerializeToString())
     train_writer.close()
 
-    print("Writing ", valid_file)
+    print("Записываем ", valid_file)
     valid_writer = tf.python_io.TFRecordWriter(valid_file)
     for index in valid_examples:
         example = tf.train.Example(features=tf.train.Features(feature={
@@ -75,14 +75,15 @@ def cpdb_to_tfrecord(datadir: str):
         valid_writer.write(example.SerializeToString())
     valid_writer.close()
 
+
 def cpdb_513_to_tfrecord(datadir: str):
     """
-    Convert the numpy array format for cpdb_513 to a TFRecord file.
+    Преобразуем формат массива для cpdb_513 в файл TFRecord.
     """
 
     datadir = os.path.abspath(datadir)
     data = np.load(os.path.join(datadir, "cb513+profile_split1.npy.gz")).reshape(-1, 700, 57)
-    # get indices for train/valid sets
+    # получаем индексы для обучающей и валидирующей выборки
     num_samples = data.shape[0]
 
     seqs = np.concatenate([data[:, :, 0:22].copy(), data[:, :, 35:56].copy()], axis=2).reshape(num_samples, -1)
@@ -93,11 +94,11 @@ def cpdb_513_to_tfrecord(datadir: str):
 
     seq_lengths = [get_length(labels[l, :, :]) for l in range(num_samples)]
 
-    # Flatten labels
+    # Сводим лэйблы
     labels = labels.reshape(num_samples, -1)
 
     filename = os.path.join(datadir, "cpdb_513.tfrecords")
-    print("Writing ", filename)
+    print("Записываем ", filename)
     writer = tf.python_io.TFRecordWriter(filename)
 
     for index in range(num_samples):
@@ -108,14 +109,16 @@ def cpdb_513_to_tfrecord(datadir: str):
         writer.write(example.SerializeToString())
     writer.close()
 
-parser = ap.ArgumentParser(description="Convert the CPDB dataset from numpy arrays to TF records.")
-parser.add_argument("-d", "--datadir", type=str, required=True,
-                    help="The directory where the data will be read from and written to.")
-args = parser.parse_args()
 
-if not os.path.isdir(args.datadir):
-    print("Invalid directory %s, quitting." % (args.datadir))
+if __name__ == '__main__':
+    parser = ap.ArgumentParser(description="Превращаем CPDB датасет из numpy-массивов в TF записи.")
+    parser.add_argument("-d", "--datadir", type=str, required=True,
+                        help="Директория, откуда будут считаны данные и записаны")
+    args = parser.parse_args()
 
-print("Processing data.")
-cpdb_to_tfrecord(args.datadir)
-cpdb_513_to_tfrecord(args.datadir)
+    if not os.path.isdir(args.datadir):
+        print("Некорректная директория %s, выходим" % args.datadir)
+
+    print("Обработка данных")
+    cpdb_to_tfrecord(args.datadir)
+    cpdb_513_to_tfrecord(args.datadir)
