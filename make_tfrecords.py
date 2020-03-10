@@ -28,7 +28,7 @@ def cpdb_to_tfrecord(datadir: str):
     """
 
     datadir = os.path.abspath(datadir)
-    data = np.load(os.path.join(datadir, "cpdb+profile_6133_filtered.npy.gz")).reshape(-1, 700, 57)
+    data = np.load(os.path.join(datadir, "cpdb+profile_6133_filtered.npy")).reshape(-1, 700, 57)
     num_samples = data.shape[0]
 
     # shuffle data
@@ -82,7 +82,7 @@ def cpdb_513_to_tfrecord(datadir: str):
     """
 
     datadir = os.path.abspath(datadir)
-    data = np.load(os.path.join(datadir, "cb513+profile_split1.npy.gz")).reshape(-1, 700, 57)
+    data = np.load(os.path.join(datadir, "cb513+profile_split1.npy")).reshape(-1, 700, 57)
     # получаем индексы для обучающей и валидирующей выборки
     num_samples = data.shape[0]
 
