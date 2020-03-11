@@ -101,7 +101,7 @@ def train(hparams):
                         break
 
         except tf.errors.OutOfRangeError:
-            print("- End of Trainig -")
+            print("- End of Training -")
             break
 
     # Окончение бронирования
