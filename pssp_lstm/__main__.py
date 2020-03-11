@@ -6,9 +6,8 @@ from .train import train
 from .evaluate import evaluate
 from .hparams import HPARAMS
 
+
 def main():
-
-
     # Define the main argument parser
     parser = ap.ArgumentParser(prog="pssp_lstm", description="Train and run models.",
                                argument_default=ap.SUPPRESS)
@@ -41,7 +40,6 @@ def main():
 
     args = parser.parse_args()
 
-
     if args.entry == "train":
         # run training
         HPARAMS.logging = args.logging
@@ -59,7 +57,6 @@ def main():
         HPARAMS.model_ckpt = str(Path(args.ckpt).absolute())
 
         evaluate(HPARAMS)
-
 
 
 if __name__ == "__main__":

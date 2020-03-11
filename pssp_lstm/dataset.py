@@ -1,7 +1,9 @@
 """Create a tf.data.Dataset input pipeline."""
 
 from pathlib import Path
-import tensorflow as tf, numpy as np
+import tensorflow as tf
+import numpy as np
+
 
 def create_dataset(hparams, mode):
     """
@@ -69,6 +71,7 @@ def create_dataset(hparams, mode):
     dataset = dataset.prefetch(2)
 
     return dataset
+
 
 def cpdb_parser(record, hparams):
     """
