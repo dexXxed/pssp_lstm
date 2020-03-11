@@ -10,10 +10,10 @@ ModelTuple = namedtuple('ModelTuple', ['graph', 'iterator', 'model', 'session'])
 
 def create_model(hparams, mode):
     """
-    Return a tuple of a tf Graph, Iterator, Model, and Session.
+    Возвращает кортеж графика, итератора, модели и сеанса.
     Args:
-        hparams - Hyperparameters; named tuple
-        mode    - the tf.contrib.learn mode (TRAIN, EVAL, INFER)
+        hparams - гиперпараметры; named tuple
+        mode    - режим tf.contrib.learn (TRAIN, EVAL, INFER)
     Returns a ModelTuple(graph, iterator, model, session)
     """
 
@@ -41,14 +41,14 @@ class BDRNNModel(object):
         self.mode = mode
         self.global_step = tf.Variable(0, name="global_step", trainable=False)
 
-        # set initializer
+        # установить инициализатор
         initializer = tf.random_uniform_initializer(minval=-0.05, maxval=0.05)
 
         tf.get_variable_scope().set_initializer(initializer)
 
         res = self._build_graph(hparams, scope=scope)
 
-        # Graph losses
+        # Граф
         if self.mode == tf.contrib.learn.ModeKeys.TRAIN:
             self.train_loss = res[1]
 
@@ -67,18 +67,18 @@ class BDRNNModel(object):
                                              rho=0.95,
                                              epsilon=1e-06)
 
-            # gradients
+            # градиенты
             gradients = tf.gradients(self.train_loss,
                                      params)
 
-            # clip by global norm
+
             clipped_gradients, gradient_norm = tf.clip_by_global_norm(gradients, hparams.max_gradient_norm)
 
 
             self.update = opt.apply_gradients(zip(clipped_gradients, params),
                                               global_step=self.global_step)
 
-            # Summaries
+            # Обобщение
             tf.summary.scalar("grad_norm", gradient_norm, collections=["train"])
             tf.summary.scalar("train_loss", self.train_loss, collections=["train"])
             self.train_summary = tf.summary.merge_all("train")
@@ -95,10 +95,10 @@ class BDRNNModel(object):
         self.saver = tf.train.Saver(tf.global_variables(), max_to_keep=hparams.num_keep_ckpts)
 
     def _build_graph(self, hparams, scope=None):
-        """Construct the train, evaluation, and inference graphs.
+        """Построить графики обучения, оценок и выводов.
         Args:
-            hparams: The hyperparameters for configuration
-            scope: The variable scope name for this subgraph
+            hparams: гиперпараметры
+            scope: Имя переменной области для этого подграфа
         Returns:
             A tuple with (logits, loss, metrics, update_ops)
         """
@@ -109,7 +109,7 @@ class BDRNNModel(object):
 
         with tf.variable_scope(scope or "dynamic_bdrnn", dtype=tf.float32):
 
-            # create bdrnn
+            # создание bdrnn
             fw_cells = _create_rnn_cell(num_units=hparams.num_units,
                                         num_layers=hparams.num_layers,
                                         mode=self.mode
@@ -126,7 +126,7 @@ class BDRNNModel(object):
                                                tf.shape(inputs)[0], "initial_state_bw")
 
 
-            # run bdrnn
+            # запуск bdrnn
             combined_outputs, output_state_fw, output_state_bw = \
                     tf.contrib.rnn.stack_bidirectional_dynamic_rnn(cells_fw=fw_cells,
                                                                    cells_bw=bw_cells,
@@ -135,15 +135,14 @@ class BDRNNModel(object):
                                                                    initial_states_fw=init_state_fw,
                                                                    initial_states_bw=init_state_bw,
                                                                    dtype=tf.float32)
-            # outputs is a tuple (output_fw, output_bw)
-            # output_fw/output_bw are tensors [batch_size, max_time, cell.output_size]
-            # outputs_states is a tuple (output_state_fw, output_state_bw) containing final states for
-            # forward and backward rnn
+            # output - это кортеж (output_fw, output_bw)
+            # output_fw / output_bw являются тензорами [batch_size, max_time, cell.output_size]
+            # output_states - это кортеж (output_state_fw, output_state_bw), содержащий конечные состояния
 
-            # concatenate the outputs of each direction
+            # объединить результаты каждого направления
             #combined_outputs = tf.concat([outputs[0], outputs[1]], axis=-1)
 
-            # dense output layers
+            # плотные выходные слои
             dense1 = tf.layers.dense(inputs=combined_outputs,
                                      units=hparams.num_dense_units,
                                      kernel_initializer=tf.glorot_uniform_initializer(),
@@ -165,23 +164,22 @@ class BDRNNModel(object):
                                      units=hparams.num_labels,
                                      use_bias=False)
 
-            # mask out entries longer than target sequence length
+            #  маскировать записи длиннее, чем длина целевой последовательности
             mask = tf.sequence_mask(seq_len, dtype=tf.float32)
 
-            #stop gradient thru labels by crossent op
             tgt_outputs = tf.stop_gradient(tgt_outputs)
 
             crossent = tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits,
                                                                   labels=tgt_outputs,
                                                                   name="crossent")
 
-            # divide loss by batch_size * mean(seq_len)
+            #  разделить потери на batch_size * mean(seq_len)
             loss = tf.reduce_sum(crossent*mask)/tf.cast(hparams.batch_size, tf.float32)
 
             metrics = []
             update_ops = []
             if self.mode == tf.contrib.learn.ModeKeys.EVAL:
-                # mean eval loss
+
                 loss, loss_update = tf.metrics.mean(values=loss)
 
                 predictions = tf.argmax(input=logits, axis=-1)
@@ -204,7 +202,7 @@ class BDRNNModel(object):
             return logits, loss, metrics, update_ops
 
     def train(self, sess):
-        """Do a single training step."""
+        """Простой обучающий шаг."""
         assert self.mode == tf.contrib.learn.ModeKeys.TRAIN
         return sess.run([self.update,
                          self.train_loss,
@@ -213,7 +211,7 @@ class BDRNNModel(object):
 
 
     def train_with_profile(self, sess, writer):
-        """Do a single training step, with profiling"""
+        """Простой обучающий шаг (profiling)"""
         assert self.mode == tf.contrib.learn.ModeKeys.TRAIN
         run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
         run_metadata = tf.RunMetadata()
@@ -228,7 +226,7 @@ class BDRNNModel(object):
 
 
     def eval(self, sess):
-        """Evaluate the model."""
+        """Оценить модель"""
         assert self.mode == tf.contrib.learn.ModeKeys.EVAL
         return sess.run([self.eval_loss,
                          self.accuracy,
@@ -239,14 +237,14 @@ class BDRNNModel(object):
 
 def _get_initial_state(state_sizes: list, batch_size, name):
     """
-    Create a list of LSTMStateTuple(c, h), with one tuple per layer in state_size. Each state
-    vector will have shape [batch_size, cell_size].
-    `name` is a prefix for the variable name of the initial states.
-    Args:
-        state_sizes: A list of RNNCell.state_size values (LSTMStateTuples)
+    Создайте список LSTMStateTuple (c, h), с одним кортежем на слой в state_size. Каждый штат
+    вектор будет иметь форму [batch_size, cell_size].
+    `name` - это префикс имени переменной начальных состояний.
+    Args:
+        state_sizes: список значений RNNCell.state_size (LSTMStateTuples)
 
-    Example:
-        [LSTMStateTuple(c=[batch_size, 300], h=[batch_size, 300]), LSTMStateTuple(c=[batch_size, 300], h=[batch_size, 300])]
+    Пример:
+        [LSTMStateTuple (c = [batch_size, 300], h = [batch_size, 300]), LSTMStateTuple (c = [batch_size, 300], h = [batch_size, 300])]
 
     """
 
@@ -264,15 +262,15 @@ def _get_initial_state(state_sizes: list, batch_size, name):
 
 
 def _create_rnn_cell(num_units, num_layers, mode):
-    """Create a list of RNN cells.
+    """Создайте список ячеек RNN.
 
     Args:
-        num_units: the depth of each unit
-        num_layers: the number of cells
-        mode: either tf.contrib.learn.TRAIN/EVAL/INFER
+        num_units: глубина каждой единицы
+        num_layers: количество ячеек
+        режим: либо tf.contrib.learn.TRAIN / EVAL / INFER
 
-    Returns:
-        A list of 'RNNCell' instances
+    Возвращает:
+        Список экземпляров 'RNNCell'
     """
 
     cell_list = []

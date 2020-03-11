@@ -1,12 +1,12 @@
 """Evaluate the model"""
-# basic example of training a network end-to-end
+# Базовый пример обучения сети
 from time import process_time
 from pathlib import Path
 import tensorflow as tf, numpy as np
 from .model import create_model
 
 def evaluate(hparams):
-    """Evaluate a trained model"""
+    """Оценивание обученой модели"""
 
     eval_tuple = create_model(hparams, tf.contrib.learn.ModeKeys.EVAL)
 
@@ -15,7 +15,7 @@ def evaluate(hparams):
 
     print("Evaluating model on %s" % (hparams.valid_file))
 
-    # do evaluation
+    #оценивание
     eval_tuple.model.saver.restore(eval_tuple.session, hparams.model_ckpt)
     eval_tuple.session.run([eval_tuple.iterator.initializer, local_initializer])
     while True:
