@@ -14,8 +14,9 @@ def train(hparams):
 
     try:
         tf.gfile.MakeDirs(ckptsdir)
-    except:
-        print("Exception encountered when trying to make directory %s" % (ckptsdir))
+    except Exception as e:
+        print("Exception encountered when trying to make directory %s" % ckptsdir)
+        print("Error %s" % e)
         quit()
 
     # построение графиков обучения и оценки
@@ -37,7 +38,7 @@ def train(hparams):
     train_tuple.session.run([initializer])
 
     start_time = process_time()
-    #
+
     # инициализация набора обучающих данных
     train_tuple.session.run([train_tuple.iterator.initializer])
     train_tuple.graph.finalize()
@@ -48,14 +49,14 @@ def train(hparams):
     max_patience = hparams.num_keep_ckpts-1
     best_eval_loss = np.Inf
     best_step = -1
-    #
+
     # Обучение, пока набор данных не выдаст ошибку (в конце num_epochs)
     while patience < max_patience:
         step_time = []
         try:
             curr_time = process_time()
             # ПРИМЕЧАНИЕ. Чтобы включить профилирование, удалите False в этом утверждении.
-            if False: # profile_next_step and hparams.logging:
+            if False:  # profile_next_step and hparams.logging:
                 # запуск профайлинга
                 _, train_loss, global_step, summary = train_tuple.model.train_with_profile(train_tuple.session, summary_writer)
                 profile_next_step = False

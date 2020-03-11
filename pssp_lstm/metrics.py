@@ -39,7 +39,7 @@ def streaming_confusion_matrix(labels, predictions, num_classes, weights=None):
     confusion_image = tf.reshape(tf.cast(confusion, tf.float32),
                                  [1, num_classes, num_classes, 1])
 
-    summary = tf.summary.image('confusion_matrix', confusion_image)
+    tf.summary.image('confusion_matrix', confusion_image)
 
     return confusion, update_op
 

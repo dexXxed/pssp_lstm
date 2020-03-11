@@ -5,6 +5,7 @@ from pathlib import Path
 import tensorflow as tf, numpy as np
 from .model import create_model
 
+
 def evaluate(hparams):
     """Оценивание обученой модели"""
 
@@ -13,9 +14,9 @@ def evaluate(hparams):
     with eval_tuple.graph.as_default():
         local_initializer = tf.local_variables_initializer()
 
-    print("Evaluating model on %s" % (hparams.valid_file))
+    print("Evaluating model on %s" % hparams.valid_file)
 
-    #оценивание
+    # оценивание
     eval_tuple.model.saver.restore(eval_tuple.session, hparams.model_ckpt)
     eval_tuple.session.run([eval_tuple.iterator.initializer, local_initializer])
     while True:
@@ -25,6 +26,6 @@ def evaluate(hparams):
         except tf.errors.OutOfRangeError:
             print("Eval Loss: %f, Eval Accuracy: %f" % (eval_loss,
                                                         eval_acc))
-            print("Confusion Matrix (true label, predicted label):" )
+            print("Confusion Matrix (true label, predicted label):")
             print(eval_cm)
             break

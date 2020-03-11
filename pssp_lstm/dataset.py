@@ -7,7 +7,7 @@ import numpy as np
 
 def create_dataset(hparams, mode):
     """
-    Создайте tf.Dataset из файла.
+    Создание tf.Dataset из файла.
     Args:
         hparams - Гиперпараметры базы данных
         mode    - режим, один из tf.contrib.learn.ModeKeys. {TRAIN, EVAL, INFER}
@@ -44,30 +44,24 @@ def create_dataset(hparams, mode):
     else:
         dataset = dataset.repeat(num_epochs)
 
-
-
-
     # дополняемый пакет для поддержки последовательностей нескольких длин
-    #dataset = dataset.padded_batch(
+    # dataset = dataset.padded_batch(
     #        batch_size,
     #        padded_shapes=(tf.TensorShape([None, hparams.num_features]),
     #                       tf.TensorShape([None, hparams.num_labels]),
     #                       tf.TensorShape([])))
     dataset = dataset.apply(tf.contrib.data.bucket_by_sequence_length(
         lambda a, b, seq_len: seq_len,
-        [50, 150, 250, 350, # buckets
+        [50, 150, 250, 350,  # buckets
          450, 550, 650],
-        [batch_size, batch_size, batch_size, # Все batch
-         batch_size, batch_size, batch_size, # имеют одинаковый размер
+        [batch_size, batch_size, batch_size,  # Все batch
+         batch_size, batch_size, batch_size,  # имеют одинаковый размер
          batch_size, batch_size],
         padded_shapes=(tf.TensorShape([None, hparams.num_features]),
                        tf.TensorShape([None, hparams.num_labels]),
                        tf.TensorShape([]))))
 
-
-
-
-    #  предварительная выборка на процессоре
+    # предварительная выборка на процессоре
     dataset = dataset.prefetch(2)
 
     return dataset

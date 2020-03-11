@@ -91,7 +91,6 @@ class BDRNNModel(object):
                 tf.summary.histogram(var.name, var, collections=["eval"])
             self.eval_summary = tf.summary.merge_all("eval")
 
-
         self.saver = tf.train.Saver(tf.global_variables(), max_to_keep=hparams.num_keep_ckpts)
 
     def _build_graph(self, hparams, scope=None):
@@ -140,7 +139,7 @@ class BDRNNModel(object):
             # output_states - это кортеж (output_state_fw, output_state_bw), содержащий конечные состояния
 
             # объединить результаты каждого направления
-            #combined_outputs = tf.concat([outputs[0], outputs[1]], axis=-1)
+            # combined_outputs = tf.concat([outputs[0], outputs[1]], axis=-1)
 
             # плотные выходные слои
             dense1 = tf.layers.dense(inputs=combined_outputs,
@@ -209,7 +208,6 @@ class BDRNNModel(object):
                          self.global_step,
                          self.train_summary])
 
-
     def train_with_profile(self, sess, writer):
         """Простой обучающий шаг (profiling)"""
         assert self.mode == tf.contrib.learn.ModeKeys.TRAIN
@@ -223,7 +221,6 @@ class BDRNNModel(object):
 
         writer.add_run_metadata(run_metadata, "step "+str(retvals[2]), retvals[2])
         return retvals
-
 
     def eval(self, sess):
         """Оценить модель"""
