@@ -6,19 +6,19 @@ import tensorflow as tf
 def streaming_confusion_matrix(labels, predictions, num_classes, weights=None):
     """Вычисляет confusion matrix.
 
-    Это создает локальные переменные для отслеживания статистики матрицы путаницы
+    Этот метод создает локальные переменные для отслеживания статистики матрицы путаницы
     потоков данных.
     Args:
-        labels: the ground truth labels, a Tensor of the same shape as predictions
-        predictions: the prediction values, a Tensor of shape (?,)
-        num_classes: the number of classes for this confusion matrix
-        weights: the weight of each prediction (default None)
+        labels: the ground truth labels, a Tensor одинаковой формы с прогнозами
+        predictions: прогнозируемые значения, Tensor следующей формы (?,)
+        num_classes: число классов для confusion matrix
+        weights: вес каждого прогноза
     Returns:
-        confusion: A k x k Tensor representing the confusion matrix, where
-            the columns represent the predicted label and the rows represent the
-            true label
-        update_op: An operation that updates the values in confusion_matrix
-            appropriately.
+        confusion: A k x k Tensor отображает confusion matrix, где
+            столбцы представляют прогнозируемую метку, а строки представляют
+            истинный ярлык
+        update_op: Операция, которая обновляет значения в confusion_matrix
+            соответственно.
     """
 
     _confusion = tf.confusion_matrix(labels=labels,
