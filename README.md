@@ -1,11 +1,10 @@
-# Recurrent Neural Networks for Protein Secondary Structure Prediction
-This repo contains ongoing work exploring recurrent neural network models as applied to protein secondary structure prediction.
+# Рекуррентные нейронные сети для предсказания вторичной структуры белка
+Этот репозиторий содержит работу по изучению рекуррентных моделей нейронной сети применительных к предсказанию вторичной структуры белка.
 
-The [pssp_lstm](./pssp_lstm/) module contains an implementation of the LSTM RNN specified in [Sonderby & Winther, 2015](https://arxiv.org/pdf/1412.7828.pdf). See the README in that folder for more details and a user guide.
+Модуль [pssp_lstm](./pssp_lstm/) содержит реализацию LSTM RNN, указанную в [Sonderby & Winther, 2015](https://arxiv.org/pdf/1412.7828.pdf). Ознакомьтесь с README в этой папке для более подробной информации.
 
-The [lm_pretrain](./lm_pretrain/) module allows users to train bidirectional language models that can be combined with bidirectional RNNs for protein secondary structure prediction. See the README in that folder for more details and a user guide.
+Модуль [lm_pretrain](./lm_pretrain/) позволяет пользователям обучать двунаправленные языковые модели, которые можно комбинировать с двунаправленными RNN для прогнозирования вторичной структуры белка. См. README в этой папке для получения более подробной информации.
 
-## Further Work
-This repo is under development. Current work is focusing on expanding the functionality of `lm_pretrain` to allow for more flexible models, and for exploring different ways of integrating pretrained LMs into BDRNNs.
+## Дальнейшая  работа
+Этот репозиторий находится в стадии разработки. Текущая работа направлена ​​на расширение функциональности`lm_pretrain` с целью создать более гибкие модели и изучить различные способы интеграции предварительно обученных LM в BDRNN.
 
-Work on implementing models from other papers is currently on pause.

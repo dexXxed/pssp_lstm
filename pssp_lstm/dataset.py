@@ -7,12 +7,12 @@ import numpy as np
 
 def create_dataset(hparams, mode):
     """
-    Create a tf.Dataset from a file.
+    Создайте tf.Dataset из файла.
     Args:
-        hparams - Hyperparameters for the dataset
-        mode    - the mode, one of tf.contrib.learn.ModeKeys.{TRAIN, EVAL, INFER}
+        hparams - Гиперпараметры базы данных
+        mode    - режим, один из tf.contrib.learn.ModeKeys. {TRAIN, EVAL, INFER}
     Returns:
-        dataset - A tf.data.Dataset object
+        dataset - Объект tf.data.Dataset
     """
 
     if mode == tf.contrib.learn.ModeKeys.TRAIN:
@@ -33,10 +33,10 @@ def create_dataset(hparams, mode):
 
     dataset = tf.data.TFRecordDataset(input_file)
 
-    # parse the records
+    # парсинг записей
     dataset = dataset.map(lambda x:parser(x, hparams), num_parallel_calls=4)
 
-    # perform the appropriate transformations and return
+    # выполнить соответствующие преобразования и вернуть
     dataset = dataset.cache()
 
     if shuffle:
@@ -47,7 +47,7 @@ def create_dataset(hparams, mode):
 
 
 
-    # padded batch to support sequences of multiple lengths
+    # дополняемый пакет для поддержки последовательностей нескольких длин
     #dataset = dataset.padded_batch(
     #        batch_size,
     #        padded_shapes=(tf.TensorShape([None, hparams.num_features]),
@@ -57,8 +57,8 @@ def create_dataset(hparams, mode):
         lambda a, b, seq_len: seq_len,
         [50, 150, 250, 350, # buckets
          450, 550, 650],
-        [batch_size, batch_size, batch_size, # all buckets have the
-         batch_size, batch_size, batch_size, # the same batch size
+        [batch_size, batch_size, batch_size, # Все batch
+         batch_size, batch_size, batch_size, # имеют одинаковый размер
          batch_size, batch_size],
         padded_shapes=(tf.TensorShape([None, hparams.num_features]),
                        tf.TensorShape([None, hparams.num_labels]),
@@ -67,7 +67,7 @@ def create_dataset(hparams, mode):
 
 
 
-    # prefetch on CPU
+    #  предварительная выборка на процессоре
     dataset = dataset.prefetch(2)
 
     return dataset
@@ -75,7 +75,7 @@ def create_dataset(hparams, mode):
 
 def cpdb_parser(record, hparams):
     """
-    Parse a CPDB tfrecord Record into a tuple of tensors.
+    Разобрать запись CPDB tfrecord в кортеж тензоров.
     """
 
     keys_to_features = {

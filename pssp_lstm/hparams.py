@@ -1,4 +1,4 @@
-"""Hyperparameters for PSSP LSTM"""
+"""Гиперпараметры for PSSP LSTM"""
 
 import tensorflow as tf
 
