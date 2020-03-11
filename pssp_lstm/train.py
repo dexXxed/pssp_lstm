@@ -104,7 +104,7 @@ def train(hparams):
             print("- End of Training -")
             break
 
-    # Окончение бронирования
+    # Окончение обучения
     summary_writer.close()
     print("Best validation loss: %3.3f at step %d" % (best_eval_loss, best_step))
     print("Total Training Time: %4.2f" % (process_time() - start_time))
